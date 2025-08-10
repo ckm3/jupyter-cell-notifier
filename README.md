@@ -1,5 +1,8 @@
 # Jupyter Cell Notifier
- 
+
+[![Version](https://vsmarketplacebadge.apphb.com/version/KaimingCui.jupyter-cell-notifier.svg)](https://marketplace.visualstudio.com/items?itemName=KaimingCui.jupyter-cell-notifier)  
+[![Installs](https://vsmarketplacebadge.apphb.com/installs-short/KaimingCui.jupyter-cell-notifier.svg)](https://marketplace.visualstudio.com/items?itemName=KaimingCui.jupyter-cell-notifier)  
+[![Ratings](https://vsmarketplacebadge.apphb.com/rating-short/KaimingCui.jupyter-cell-notifier.svg)](https://marketplace.visualstudio.com/items?itemName=KaimingCui.jupyter-cell-notifier)  
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 A VS Code extension to notify you when individual Jupyter notebook cells finish executing.
@@ -16,7 +19,7 @@ A VS Code extension to notify you when individual Jupyter notebook cells finish 
 
 ## Preview
 
-![Extension Preview](assets/screenshot.png)
+![Extension Preview](assets/screenshot.png)  
 
 ---
 
