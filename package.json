@@ -3,7 +3,7 @@
   "displayName": "Jupyter Cell Notifier",
   "description": "Get notifications when Jupyter notebook cells finish running",
   "publisher": "KaimingCui",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "license": "MIT",
   "icon": "assets/icon.png",
   "repository": {
@@ -13,7 +13,9 @@
   "engines": {
     "vscode": "^1.74.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "activationEvents": [
     "onNotebook:jupyter-notebook"
   ],
@@ -40,13 +42,13 @@
         "jupyter-cell-notifier.includeOutputInMessages": {
           "type": "boolean",
           "default": true,
-          "description": "Include (truncated) cell output in Slack / Telegram messages." 
+          "description": "Include (truncated) cell output in Slack / Telegram messages."
         },
         "jupyter-cell-notifier.outputCharLimit": {
           "type": "number",
           "default": 1000,
           "minimum": 100,
-          "description": "Maximum characters of cell output to include in external messages." 
+          "description": "Maximum characters of cell output to include in external messages."
         }
       }
     },
