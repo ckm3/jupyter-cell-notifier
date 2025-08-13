@@ -26,6 +26,27 @@
           "type": "boolean",
           "default": true,
           "description": "Also show a system notification (macOS Notification Center) when a cell finishes."
+        },
+        "jupyter-cell-notifier.slack.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Send a Slack message (via Incoming Webhook) when a watched cell finishes. Use the command: 'Set Slack Webhook URL' to securely store it."
+        },
+        "jupyter-cell-notifier.telegram.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Send a Telegram message when a watched cell finishes. Use the command: 'Set Telegram Bot Token & Chat ID' to securely store credentials."
+        },
+        "jupyter-cell-notifier.includeOutputInMessages": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include (truncated) cell output in Slack / Telegram messages." 
+        },
+        "jupyter-cell-notifier.outputCharLimit": {
+          "type": "number",
+          "default": 1000,
+          "minimum": 100,
+          "description": "Maximum characters of cell output to include in external messages." 
         }
       }
     },
@@ -34,6 +55,14 @@
         "command": "jupyter-cell-notifier.toggleNotification",
         "title": "Toggle Cell Notification",
         "icon": "$(bell)"
+      },
+      {
+        "command": "jupyter-cell-notifier.setSlackWebhook",
+        "title": "Jupyter Cell Notifier: Set Slack Webhook URL"
+      },
+      {
+        "command": "jupyter-cell-notifier.setTelegramCredentials",
+        "title": "Jupyter Cell Notifier: Set Telegram Bot Token & Chat ID"
       }
     ],
     "menus": {
