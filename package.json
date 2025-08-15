@@ -3,7 +3,7 @@
   "displayName": "Jupyter Cell Notifier",
   "description": "Get notifications when Jupyter notebook cells finish running",
   "publisher": "KaimingCui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "icon": "assets/icon.png",
   "repository": {
@@ -39,10 +39,15 @@
           "default": false,
           "description": "Send a Telegram message when a watched cell finishes. Use the command: 'Set Telegram Bot Token & Chat ID' to securely store credentials."
         },
+        "jupyter-cell-notifier.teams.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Send a Microsoft Teams message (via Incoming Webhook) when a watched cell finishes. Use the command: 'Set Teams Webhook URL' to securely store it."
+        },
         "jupyter-cell-notifier.includeOutputInMessages": {
           "type": "boolean",
           "default": true,
-          "description": "Include (truncated) cell output in Slack / Telegram messages."
+          "description": "Include (truncated) cell output in Slack / Teams / Telegram messages."
         },
         "jupyter-cell-notifier.outputCharLimit": {
           "type": "number",
@@ -61,6 +66,10 @@
       {
         "command": "jupyter-cell-notifier.setSlackWebhook",
         "title": "Jupyter Cell Notifier: Set Slack Webhook URL"
+      },
+      {
+        "command": "jupyter-cell-notifier.setTeamsWebhook",
+        "title": "Jupyter Cell Notifier: Set Teams Webhook URL"
       },
       {
         "command": "jupyter-cell-notifier.setTelegramCredentials",

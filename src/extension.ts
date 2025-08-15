@@ -99,7 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Command: Set Slack Webhook URL (stored securely in secret storage)
     const setSlackWebhookCommand = vscode.commands.registerCommand('jupyter-cell-notifier.setSlackWebhook', async () => {
         const input = await vscode.window.showInputBox({
-            prompt: 'Enter Slack Incoming Webhook URL (starts with https://hooks.slack.com/services/...)',
+            prompt: 'Enter Your Slack Incoming Webhook URL (starts with https://hooks.slack.com/services/...)',
             placeHolder: 'https://hooks.slack.com/services/XXX/YYY/ZZZ',
             validateInput: (val: string) => val.startsWith('https://hooks.slack.com/services/') ? undefined : 'Must start with https://hooks.slack.com/services/'
         });
@@ -111,13 +111,13 @@ export function activate(context: vscode.ExtensionContext) {
     // Command: Set Telegram Bot Token & Chat ID
     const setTelegramCredentialsCommand = vscode.commands.registerCommand('jupyter-cell-notifier.setTelegramCredentials', async () => {
         const token = await vscode.window.showInputBox({
-            prompt: 'Enter Telegram Bot Token',
+            prompt: 'Enter Your Telegram Bot Token',
             placeHolder: '123456789:ABCDEF...',
             validateInput: (v: string) => /:\w/.test(v) ? undefined : 'Seems not a valid bot token (missing :)'
         });
         if (!token) { return; }
         const chatId = await vscode.window.showInputBox({
-            prompt: 'Enter Telegram Chat ID (user/group ID)',
+            prompt: 'Enter Your Telegram Chat ID (user/group ID)',
             placeHolder: '123456789'
         });
         if (!chatId) { return; }
@@ -126,7 +126,18 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Telegram credentials saved securely.');
     });
 
-    context.subscriptions.push(toggleCommand, executionListener, notebookOpenListener, setSlackWebhookCommand, setTelegramCredentialsCommand);
+    // Command: Set Microsoft Teams Webhook URL (stored securely in secret storage)
+    const setTeamsWebhookCommand = vscode.commands.registerCommand('jupyter-cell-notifier.setTeamsWebhook', async () => {
+        const input = await vscode.window.showInputBox({
+            prompt: 'Enter Your Microsoft Teams Incoming Webhook URL',
+            placeHolder: 'https://.../webhook/...',
+        });
+        if (!input) { return; }
+        await context.secrets.store('jupyter-cell-notifier.teamsWebhook', input.trim());
+        vscode.window.showInformationMessage('Teams webhook URL saved securely.');
+    });
+
+    context.subscriptions.push(toggleCommand, executionListener, notebookOpenListener, setSlackWebhookCommand, setTelegramCredentialsCommand, setTeamsWebhookCommand);
 
     // Register status bar provider to show per-cell On/Off bell with a toggle command (guard for API availability)
     const notebooksApi: any = (vscode as any).notebooks;
@@ -211,6 +222,16 @@ export function activate(context: vscode.ExtensionContext) {
                 postSlack(webhook, message).catch(err => console.debug('Slack post failed', err));
             } else {
                 console.debug('Slack enabled but no webhook stored.');
+            }
+        }
+
+        // Teams notification
+        if (config.get<boolean>('teams.enable')) {
+            const webhook = await context.secrets.get('jupyter-cell-notifier.teamsWebhook');
+            if (webhook) {
+                postTeams(webhook, message).catch(err => console.debug('Teams post failed', err));
+            } else {
+                console.debug('Teams enabled but no webhook stored.');
             }
         }
 
@@ -302,6 +323,37 @@ function postSlack(webhookUrl: string, text: string): Promise<void> {
                 res.on('end', () => {
                     if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) resolve();
                     else reject(new Error(`Slack webhook status ${res.statusCode}`));
+                });
+            });
+            req.on('error', reject);
+            req.write(body);
+            req.end();
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+// Post a simple message to Microsoft Teams via Incoming Webhook
+// Teams accepts either the legacy "text" card or an Adaptive Card payload. The simplest is a JSON with just "text".
+function postTeams(webhookUrl: string, text: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            const url = new URL(webhookUrl);
+            const body = JSON.stringify({ text });
+            const req = https.request({
+                method: 'POST',
+                hostname: url.hostname,
+                path: url.pathname + url.search,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(body)
+                }
+            }, (res: IncomingMessage) => {
+                res.on('data', () => {});
+                res.on('end', () => {
+                    if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) resolve();
+                    else reject(new Error(`Teams webhook status ${res.statusCode}`));
                 });
             });
             req.on('error', reject);

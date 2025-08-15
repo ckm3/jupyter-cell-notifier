@@ -1,7 +1,7 @@
 # Jupyter Cell Notifier  
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-A VS Code extension to notify you when individual Jupyter notebook cells finish executing. Supoorting Slack and Telegram messages.
+A VS Code extension that notifies you when individual Jupyter notebook cells finish executing. Supports direct messaging via Slack, Microsoft Teams, and Telegram with extreme privacy and security.
 
 ---
 
@@ -11,7 +11,9 @@ A VS Code extension to notify you when individual Jupyter notebook cells finish 
 - Desktop & notification‐center alerts when cells complete  
 - Click a notification to jump right back to that cell  
 - Optional Slack webhook notifications (securely stored)  
-- Optional Telegram bot notifications (securely stored)  
+- Optional Microsoft Teams webhook notifications (securely stored)  
+- Optional Telegram bot notifications (securely stored)
+- No server or relay — messages are sent directly to Slack/Teams/Telegram using your credentials
 
 ---
 
@@ -52,6 +54,14 @@ A VS Code extension to notify you when individual Jupyter notebook cells finish 
 4. Enable the setting: `jupyter-cell-notifier.slack.enable`
 5. When a watched cell completes, a message is sent to Slack
 
+### Optional: Microsoft Teams Notifications
+
+1. Add an Incoming Webhook connector to your Teams channel and copy its webhook URL
+2. Run the command palette: `Jupyter Cell Notifier: Set Teams Webhook URL`
+3. Paste the webhook URL
+4. Enable the setting: `jupyter-cell-notifier.teams.enable`
+5. When a watched cell completes, a message is sent to your Teams channel
+
 ### Optional: Telegram Notifications
 
 1. Create a bot with @BotFather and copy the bot token
@@ -61,7 +71,14 @@ A VS Code extension to notify you when individual Jupyter notebook cells finish 
 5. Enable the setting: `jupyter-cell-notifier.telegram.enable`
 6. Watched cell completions send a direct Telegram message
 
-All secrets (webhook, bot token, chat ID) are stored securely using VS Code's SecretStorage — they never go into your settings.json or source control.
+All secrets (webhooks, bot token, chat ID) are stored securely using VS Code's SecretStorage — they never go into your settings.json or source control.
+
+## Privacy & Security
+
+- No backend server: This extension does not operate any cloud service and does not relay your messages.
+- Direct delivery: Notifications are sent from your VS Code directly to Slack, Microsoft Teams, or Telegram via their official webhook/API endpoints.
+- Your credentials: You provide and control your own webhook URLs or bot tokens. The extension does not create, proxy, or manage provider accounts.
+- Local secure storage: Sensitive values are stored in VS Code SecretStorage and are never written to files in your workspace or settings.
 
 ## Contributing
 
