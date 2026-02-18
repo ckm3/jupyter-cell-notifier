@@ -3,7 +3,7 @@
   "displayName": "Jupyter Cell Notifier",
   "description": "Get notifications when Jupyter notebook cells finish running",
   "publisher": "KaimingCui",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "license": "MIT",
   "icon": "assets/icon.png",
   "repository": {

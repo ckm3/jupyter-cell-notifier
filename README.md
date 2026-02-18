@@ -8,11 +8,12 @@ A VS Code extension that notifies you when individual Jupyter notebook cells fin
 ## Features
 
 - Bell icon in each cell’s toolbar to toggle notifications  
-- Desktop & notification‐center alerts when cells complete  
+- Native system notifications on **macOS** (Notification Center), **Linux** (`notify-send`), and **Windows** (PowerShell balloon tip)  
+- Auto-notify: automatically watches cells that run longer than a configurable threshold (default 3 min)  
 - Click a notification to jump right back to that cell  
 - Optional Slack webhook notifications (securely stored)  
 - Optional Microsoft Teams webhook notifications (securely stored)  
-- Optional Telegram bot notifications (securely stored)
+- Optional Telegram bot notifications (securely stored)  
 - No server or relay — messages are sent directly to Slack/Teams/Telegram using your credentials
 
 ---
@@ -27,6 +28,7 @@ A VS Code extension that notifies you when individual Jupyter notebook cells fin
 
 - VS Code ≥ 1.74.0  
 - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) & Jupyter extension for `.ipynb` support  
+- **Linux only:** `libnotify` / `notify-send` (pre-installed on most desktop distros; install with `sudo apt install libnotify-bin` on Debian/Ubuntu)
 
 ---
 
