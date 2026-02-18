@@ -243,10 +243,10 @@ export function activate(context: vscode.ExtensionContext) {
         // Also show a macOS system notification if enabled
     // 'config' already defined above
         const useSystem = config.get<boolean>('systemNotifications', true);
-        if (useSystem && process.platform === 'darwin') {
+        if (useSystem) {
             const title = `Cell ${cellIndex} ${status}`;
             const message = truncatedContent || 'Execution complete';
-            showMacSystemNotification(title, message);
+            showSystemNotification(title, message);
         }
 
         // Slack notification
@@ -281,15 +281,36 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
-    function showMacSystemNotification(title: string, message: string) {
-        // Escape quotes for AppleScript
-        const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-        const script = `display notification "${esc(message)}" with title "${esc(title)}"`;
-        execFile('osascript', ['-e', script], (err: Error | null) => {
-            if (err) {
-                console.debug('Failed to send macOS notification via osascript:', (err as any).message);
-            }
-        });
+    function showSystemNotification(title: string, message: string) {
+        const platform = process.platform;
+        if (platform === 'darwin') {
+            // macOS: use osascript / AppleScript
+            const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+            const script = `display notification "${esc(message)}" with title "${esc(title)}"`;
+            execFile('osascript', ['-e', script], (err: Error | null) => {
+                if (err) { console.debug('Failed to send macOS notification:', (err as any).message); }
+            });
+        } else if (platform === 'linux') {
+            // Linux: use notify-send (libnotify)
+            execFile('notify-send', [title, message], (err: Error | null) => {
+                if (err) { console.debug('Failed to send Linux notification via notify-send:', (err as any).message); }
+            });
+        } else if (platform === 'win32') {
+            // Windows: use PowerShell balloon-tip via System.Windows.Forms
+            const esc = (s: string) => s.replace(/'/g, "''");
+            const script = [
+                'Add-Type -AssemblyName System.Windows.Forms',
+                '$n = New-Object System.Windows.Forms.NotifyIcon',
+                '$n.Icon = [System.Drawing.SystemIcons]::Information',
+                '$n.Visible = $true',
+                `$n.ShowBalloonTip(5000, '${esc(title)}', '${esc(message)}', [System.Windows.Forms.ToolTipIcon]::Info)`,
+                'Start-Sleep -Seconds 6',
+                '$n.Dispose()'
+            ].join(';');
+            execFile('powershell', ['-NoProfile', '-NonInteractive', '-Command', script], (err: Error | null) => {
+                if (err) { console.debug('Failed to send Windows notification via PowerShell:', (err as any).message); }
+            });
+        }
     }
 }
 
