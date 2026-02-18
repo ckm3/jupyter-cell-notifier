@@ -13,6 +13,9 @@ export function activate(context: vscode.ExtensionContext) {
     // Map to track cell execution states
     const executingCells = new Map<string, boolean>();
 
+    // Map to track auto-notify timers for running cells
+    const autoNotifyTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
     // Emitter to refresh status bar items when state changes
     const statusBarEmitter = new vscode.EventEmitter<vscode.NotebookCell | undefined>();
     context.subscriptions.push(statusBarEmitter);
@@ -66,17 +69,48 @@ export function activate(context: vscode.ExtensionContext) {
                 continue;
             }
 
-            // Mark as executing when a startTime appears
-            if (typeof summary.timing?.startTime === 'number' && !executingCells.get(cellId)) {
+            // Execution START: executionSummary changed but timing is not yet set
+            // (the Jupyter extension sets executionOrder first, then timing appears only on completion)
+            if (!summary.timing && !executingCells.get(cellId)) {
                 executingCells.set(cellId, true);
+
+                // Start auto-notify timer if the cell doesn't already have notifications enabled
+                if (!notificationEnabledCells.has(cellId)) {
+                    const config = vscode.workspace.getConfiguration('jupyter-cell-notifier');
+                    const thresholdSec = config.get<number>('autoNotifyThreshold', 30);
+                    if (thresholdSec > 0) {
+                        // Clear any previous timer for this cell
+                        const existingTimer = autoNotifyTimers.get(cellId);
+                        if (existingTimer) { clearTimeout(existingTimer); }
+
+                        const timer = setTimeout(() => {
+                            autoNotifyTimers.delete(cellId);
+                            // Only auto-enable if the cell is still executing and not already enabled
+                            if (executingCells.get(cellId) && !notificationEnabledCells.has(cellId)) {
+                                notificationEnabledCells.add(cellId);
+                                updateCellDecoration(cell, true);
+                                statusBarEmitter.fire(cell);
+                            }
+                        }, thresholdSec * 1000);
+                        autoNotifyTimers.set(cellId, timer);
+                    }
+                }
             }
 
-            // When endTime appears, treat as finished
-            if (typeof summary.timing?.endTime === 'number') {
-                const wasExecuting = executingCells.get(cellId);
+            // Execution END: timing object appears (both startTime and endTime are set together)
+            if (summary.timing) {
                 executingCells.delete(cellId);
 
-                if (wasExecuting && notificationEnabledCells.has(cellId)) {
+                // Clear any pending auto-notify timer
+                const pendingTimer = autoNotifyTimers.get(cellId);
+                if (pendingTimer) {
+                    clearTimeout(pendingTimer);
+                    autoNotifyTimers.delete(cellId);
+                }
+
+                // Fire notification if notifications are enabled for this cell
+                // (either manually toggled or auto-enabled by the threshold timer)
+                if (notificationEnabledCells.has(cellId)) {
                     showNotification(cell, summary.success);
                 }
             }

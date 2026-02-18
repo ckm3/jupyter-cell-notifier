@@ -54,6 +54,12 @@
           "default": 1000,
           "minimum": 100,
           "description": "Maximum characters of cell output to include in external messages."
+        },
+        "jupyter-cell-notifier.autoNotifyThreshold": {
+          "type": "number",
+          "default": 180,
+          "minimum": 0,
+          "description": "Automatically enable notifications for cells running longer than this many seconds. Set to 0 to disable auto-notify."
         }
       }
     },
