@@ -7,6 +7,21 @@ import { IncomingMessage } from 'http';
 export function activate(context: vscode.ExtensionContext) {
     console.log('Jupyter Cell Notifier is now active');
 
+    // Detect extension updates and prompt user to reload so new defaults/settings take effect
+    const currentVersion: string = context.extension.packageJSON.version;
+    const storedVersion = context.globalState.get<string>('extensionVersion');
+    if (storedVersion && storedVersion !== currentVersion) {
+        vscode.window.showInformationMessage(
+            `Jupyter Cell Notifier updated to v${currentVersion}. Reload window to apply changes.`,
+            'Reload Now'
+        ).then(selection => {
+            if (selection === 'Reload Now') {
+                vscode.commands.executeCommand('workbench.action.reloadWindow');
+            }
+        });
+    }
+    context.globalState.update('extensionVersion', currentVersion);
+
     // Map to track which cells have notifications enabled
     const notificationEnabledCells = new Set<string>();
     
@@ -77,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
                 // Start auto-notify timer if the cell doesn't already have notifications enabled
                 if (!notificationEnabledCells.has(cellId)) {
                     const config = vscode.workspace.getConfiguration('jupyter-cell-notifier');
-                    const thresholdSec = config.get<number>('autoNotifyThreshold', 30);
+                    const thresholdSec = config.get<number>('autoNotifyThreshold', 180);
                     if (thresholdSec > 0) {
                         // Clear any previous timer for this cell
                         const existingTimer = autoNotifyTimers.get(cellId);
